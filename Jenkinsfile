@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        OTX_API_KEY = credentials('otx-api-key') // Ensure you've added your API key in Jenkins credentials
+        OTX_API_KEY = credentials('otx-api-key')
     }
     stages {
         stage('Static Analysis') {
