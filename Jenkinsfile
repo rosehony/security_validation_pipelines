@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        OTX_API_KEY = credentials('your-otx-api-key-id')
+        OTX_API_KEY = credentials('otx-api-key')
     }
 
     stages {
