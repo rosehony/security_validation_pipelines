@@ -2,16 +2,29 @@ pipeline {
     agent any
 
     environment {
-        // Set OTX_API_KEY here or use Jenkins Credentials to inject it securely
         OTX_API_KEY = credentials('your-otx-api-key-id')
     }
 
     stages {
+        stage('Checkout Security Validation Pipelines') {
+            steps {
+                git url: 'https://github.com/rosehony/security_validation_pipelines.git', branch: 'main'
+            }
+        }
+
+        stage('Checkout Test Web Project') {
+            steps {
+                dir('test_web') {
+                    git url: 'https://github.com/rosehony/test_web.git', branch: 'main'
+                }
+            }
+        }
+
         stage('Static Analysis') {
             steps {
                 script {
-                    // Install bandit and run bandit_script.py
-                    sh 'pip3 install bandit --user'
+                    // Install Bandit and run bandit_script.py
+                    sh 'pip3 install --user bandit'
                     sh 'python3 bandit_script.py'
                 }
             }
@@ -20,8 +33,8 @@ pipeline {
         stage('Dependency Scanning') {
             steps {
                 script {
-                    // Install safety and run safety_script.py
-                    sh 'pip3 install safety --user'
+                    // Install Safety and run safety_script.py
+                    sh 'pip3 install --user safety'
                     sh 'export PATH=$PATH:$HOME/.local/bin && python3 safety_script.py'
                 }
             }
