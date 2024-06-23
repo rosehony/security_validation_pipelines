@@ -1,7 +1,7 @@
 import subprocess
 
 def run_bandit():
-    result = subprocess.run(['bandit', '-r', 'your_project/'], capture_output=True, text=True)
+    result = subprocess.run(['bandit', '-r', 'rosehony/test_web'], capture_output=True, text=True)
     print(result.stdout)
     if result.returncode != 0:
         raise Exception("Security issues found")
