@@ -2,7 +2,7 @@ import requests
 import json
 
 def run_zap_scan():
-    target = 'http://example.com'
+    target = 'https://www.geeksforgeeks.org'
 
     try:
         response = requests.get(target)
