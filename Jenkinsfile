@@ -7,7 +7,7 @@ pipeline {
         stage('Static Analysis') {
             steps {
                 script {
-                    // Run Bandit for static analysis
+                    sh 'pip3 install bandit --user'
                     sh 'python3 bandit_script.py'
                 }
             }
@@ -15,7 +15,7 @@ pipeline {
         stage('Dependency Scanning') {
             steps {
                 script {
-                    // Run Safety for dependency scanning
+                    sh 'pip3 install safety --user'
                     sh 'python3 safety_script.py'
                 }
             }
@@ -23,28 +23,27 @@ pipeline {
         stage('Dynamic Analysis') {
             steps {
                 script {
-                    // Run ZAP for dynamic analysis
-                    sh '''
-                    docker run -u zap -d -p 8080:8080 ghcr.io/zaproxy/zaproxy:stable zap.sh -daemon -port 8080 -config api.disablekey=true
-                    sleep 30  # Give ZAP some time to start
-                    python3 zap_script.py
-                    '''
+                    sh 'docker run -d -u zap -p 8080:8080 --name zap ghcr.io/zaproxy/zaproxy:stable zap.sh -daemon -port 8080'
+                    sh 'python3 zap_script.py'
+                    sh 'docker stop zap'
+                    sh 'docker rm zap'
                 }
             }
         }
         stage('Fetch Threat Intelligence') {
             steps {
                 script {
-                    // Fetch Threat Intelligence from OTX
-                    sh 'python3 otx_script.py ${OTX_API_KEY}'
+                    sh 'pip3 install OTXv2 --user'
+                    withCredentials([string(credentialsId: 'otx-api-key', variable: 'OTX_API_KEY')]) {
+                        sh 'python3 otx_script.py $OTX_API_KEY'
+                    }
                 }
             }
         }
     }
     post {
         always {
-            // Archive the ZAP report
-            archiveArtifacts artifacts: 'zap_report.html', allowEmptyArchive: true
+            archiveArtifacts artifacts: '*.txt, *.html', allowEmptyArchive: true
         }
     }
 }
