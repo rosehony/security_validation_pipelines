@@ -1,32 +1,24 @@
-import time
-from zapv2 import ZAPv2
+import requests
+import json
 
 def run_zap_scan():
     target = 'http://example.com'
-    zap = ZAPv2()
 
-    # Start a new session
-    print('Accessing target {}'.format(target))
-    zap.urlopen(target)
-    time.sleep(2)  # Give the scanner time to start
+    try:
+        response = requests.get(target)
+        response.raise_for_status()  # Raise HTTPError for bad responses
 
-    print('Spidering target {}'.format(target))
-    scan_id = zap.spider.scan(target)
-    while int(zap.spider.status(scan_id)) < 100:
-        print('Spider progress %: {}'.format(zap.spider.status(scan_id)))
-        time.sleep(2)
-    print('Spider completed')
-
-    print('Scanning target {}'.format(target))
-    scan_id = zap.ascan.scan(target)
-    while int(zap.ascan.status(scan_id)) < 100:
-        print('Scan progress %: {}'.format(zap.ascan.status(scan_id)))
-        time.sleep(5)
-    print('Scan completed')
-
-    # Generate report
-    with open('zap_report.html', 'w') as f:
-        f.write(zap.core.htmlreport())
+        try:
+            data = response.json()  # Attempt to parse JSON response
+            # Process JSON data as needed
+            print("JSON data received successfully.")
+        except json.JSONDecodeError as err:
+            print(f"JSON Decode Error: {err}")
+            print(f"Invalid JSON received: {response.text}")
+    except requests.HTTPError as err:
+        print(f"HTTP Error: {err}")
+    except Exception as err:
+        print(f"An error occurred: {err}")
 
 if __name__ == "__main__":
     run_zap_scan()
