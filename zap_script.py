@@ -1,5 +1,4 @@
 import requests
-import json
 
 def run_zap_scan():
     target = 'https://www.geeksforgeeks.org'
@@ -8,13 +7,13 @@ def run_zap_scan():
         response = requests.get(target)
         response.raise_for_status()  # Raise HTTPError for bad responses
 
-        try:
-            data = response.json()  # Attempt to parse JSON response
-            # Process JSON data as needed
-            print("JSON data received successfully.")
-        except json.JSONDecodeError as err:
-            print(f"JSON Decode Error: {err}")
-            print(f"Invalid JSON received: {response.text}")
+        # Check if the response content is HTML
+        if 'text/html' in response.headers.get('Content-Type', ''):
+            print("HTML content received successfully.")
+            # Process HTML content as needed
+        else:
+            print("Received content is not HTML.")
+
     except requests.HTTPError as err:
         print(f"HTTP Error: {err}")
     except Exception as err:
