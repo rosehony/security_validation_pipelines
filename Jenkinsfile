@@ -1,49 +1,54 @@
 pipeline {
     agent any
+
     environment {
-        OTX_API_KEY = credentials('otx-api-key')
+        // Set OTX_API_KEY here or use Jenkins Credentials to inject it securely
+        OTX_API_KEY = credentials('your-otx-api-key-id')
     }
+
     stages {
         stage('Static Analysis') {
             steps {
                 script {
+                    // Install bandit and run bandit_script.py
                     sh 'pip3 install bandit --user'
                     sh 'python3 bandit_script.py'
                 }
             }
         }
+
         stage('Dependency Scanning') {
             steps {
                 script {
+                    // Install safety and run safety_script.py
                     sh 'pip3 install safety --user'
-                    sh 'python3 safety_script.py'
+                    sh 'export PATH=$PATH:$HOME/.local/bin && python3 safety_script.py'
                 }
             }
         }
+
         stage('Dynamic Analysis') {
             steps {
                 script {
-                    sh 'docker run -d -u zap -p 8080:8080 --name zap ghcr.io/zaproxy/zaproxy:stable zap.sh -daemon -port 8080'
+                    // Run OWASP ZAP dynamic analysis
                     sh 'python3 zap_script.py'
-                    sh 'docker stop zap'
-                    sh 'docker rm zap'
                 }
             }
         }
+
         stage('Fetch Threat Intelligence') {
             steps {
                 script {
-                    sh 'pip3 install OTXv2 --user'
-                    withCredentials([string(credentialsId: 'otx-api-key', variable: 'OTX_API_KEY')]) {
-                        sh 'python3 otx_script.py $OTX_API_KEY'
-                    }
+                    // Run OTX script to fetch threat intelligence
+                    sh 'python3 otx_script.py'
                 }
             }
         }
     }
+
     post {
         always {
-            archiveArtifacts artifacts: '*.txt, *.html', allowEmptyArchive: true
+            archiveArtifacts artifacts: '**/*', allowEmptyArchive: true
         }
     }
 }
