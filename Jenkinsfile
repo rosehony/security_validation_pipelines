@@ -20,10 +20,17 @@ pipeline {
             }
         }
 
+        stage('Install Dependencies') {
+            steps {
+                script {
+                    sh 'pip3 install --user -r test_web/requirements.txt'
+                }
+            }
+        }
+
         stage('Static Analysis') {
             steps {
                 script {
-                    // Install Bandit and run bandit_script.py
                     sh 'pip3 install --user bandit'
                     sh 'export PATH=$PATH:$HOME/.local/bin && python3 bandit_script.py'
                 }
@@ -33,7 +40,6 @@ pipeline {
         stage('Dependency Scanning') {
             steps {
                 script {
-                    // Install Safety and run safety_script.py
                     sh 'pip3 install --user safety'
                     sh 'export PATH=$PATH:$HOME/.local/bin && python3 safety_script.py'
                 }
@@ -43,7 +49,6 @@ pipeline {
         stage('Dynamic Analysis') {
             steps {
                 script {
-                    // Run OWASP ZAP dynamic analysis
                     sh 'export PATH=$PATH:$HOME/.local/bin && python3 zap_script.py'
                 }
             }
@@ -52,7 +57,6 @@ pipeline {
         stage('Fetch Threat Intelligence') {
             steps {
                 script {
-                    // Run OTX script to fetch threat intelligence
                     sh 'export PATH=$PATH:$HOME/.local/bin && python3 otx_script.py $OTX_API_KEY'
                 }
             }
