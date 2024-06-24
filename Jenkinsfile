@@ -25,7 +25,7 @@ pipeline {
                 script {
                     // Install Bandit and run bandit_script.py
                     sh 'pip3 install --user bandit'
-                    sh 'python3 bandit_script.py'
+                    sh 'export PATH=$PATH:$HOME/.local/bin && python3 bandit_script.py'
                 }
             }
         }
@@ -44,7 +44,7 @@ pipeline {
             steps {
                 script {
                     // Run OWASP ZAP dynamic analysis
-                    sh 'python3 zap_script.py'
+                    sh 'export PATH=$PATH:$HOME/.local/bin && python3 zap_script.py'
                 }
             }
         }
@@ -53,7 +53,7 @@ pipeline {
             steps {
                 script {
                     // Run OTX script to fetch threat intelligence
-                    sh 'python3 otx_script.py'
+                    sh 'export PATH=$PATH:$HOME/.local/bin && python3 otx_script.py $OTX_API_KEY'
                 }
             }
         }
