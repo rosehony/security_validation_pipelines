@@ -1,7 +1,7 @@
 import requests
 
 def run_zap_scan():
-    target = 'https://www.geeksforgeeks.org'
+    target = 'https://www.digtoon.com'
 
     try:
         response = requests.get(target)
